@@ -12,7 +12,7 @@ html,body{height:100%;overflow:hidden;background:#2a0f1c}
 body{cursor:default}
 body.idle{cursor:none}
 canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
-main{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--ink);transition:opacity 1.2s ease;padding:0 4vw}
+main{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--ink);transition:opacity 1.2s ease;padding:0 4vw;transform:translateY(var(--vy,0vh))}
 main.off{opacity:0}
 main.left{align-items:flex-start;text-align:left;padding-left:6vw}
 main.right{align-items:flex-end;text-align:right;padding-right:6vw}
@@ -76,6 +76,7 @@ main.plain h1{animation:none}
   <h3>Name size</h3><input type="range" id="r-size" min=".5" max="3" step=".05" value="1">
   <h3>Name position</h3>
   <div class="seg" id="bt-pos"></div>
+  <h3>Name height</h3><input type="range" id="r-vy" min="-45" max="45" step="1" value="0">
   <h3>Name effect</h3>
   <div class="seg" id="bt-fx"></div>
   <h3>Background colours</h3>
@@ -263,7 +264,7 @@ const FONTS=[
   ['Playfair',`'Playfair Display',Georgia,'Times New Roman',serif`,12],
   ['Cinzel',`'Cinzel','Trajan Pro',Georgia,serif`,10]
 ];
-const S={pi:0,cc:null,shp:0,ink:'#f7e6c4',fx:0,font:0,size:1,pos:0,fit:0,scroll:0,mat:0,grow:0,shoot:0,off:false,n1:$('n1').textContent,n2:$('n2').textContent,dt:$('dt').textContent,vn:$('vn').textContent,spd:1,dens:1};
+const S={pi:0,cc:null,shp:0,ink:'#f7e6c4',fx:0,font:0,size:1,pos:0,fit:0,scroll:0,mat:0,grow:0,shoot:0,vy:0,off:false,n1:$('n1').textContent,n2:$('n2').textContent,dt:$('dt').textContent,vn:$('vn').textContent,spd:1,dens:1};
 let photo=null,ctl=location.hash==='#control';
 const mkP=h=>{const c=[1,3,5].map(i=>parseInt(h.substr(i,2),16)),dk=f=>c.map(v=>v*f),lt=f=>c.map(v=>v+(255-v)*f);return{a:dk(.16),b:dk(.5),g:lt(.55),p:lt(.7)}};
 function setPhoto(d){if(!d){bgImg=null;return}const im=new Image();im.onload=()=>{bgImg=im};im.src=d}
@@ -272,7 +273,7 @@ function applyState(s){
   pi=s.pi;shp=s.shp;spd=s.spd;dens=s.dens;fit=s.fit|0;scr=s.scroll||0;mat=s.mat|0;grow=s.grow|0;shoot=s.shoot|0;setInk(s.ink);
   const m=$('t');m.classList.remove('shimmer','float','pulse','plain');if(FX[s.fx])m.classList.add(FX[s.fx]);
   m.classList.toggle('off',s.off);
-  const f=FONTS[s.font|0],h1=m.querySelector('h1');h1.style.fontFamily=f[1];h1.style.fontSize=f[2]*(s.size||1)+'vh';m.style.setProperty('--sz',s.size||1);
+  const f=FONTS[s.font|0],h1=m.querySelector('h1');h1.style.fontFamily=f[1];h1.style.fontSize=f[2]*(s.size||1)+'vh';m.style.setProperty('--sz',s.size||1);m.style.setProperty('--vy',(s.vy||0)+'vh');
   m.classList.remove('left','right');if(s.pos===1)m.classList.add('left');if(s.pos===2)m.classList.add('right');
   $('n1').textContent=s.n1;$('n2').textContent=s.n2;$('dt').textContent=s.dt;$('vn').textContent=s.vn;
 }
@@ -281,7 +282,7 @@ dash.addEventListener('keydown',e=>e.stopPropagation());
 function sync(){
   ui.forEach(f=>f());
   $('i-n1').value=S.n1;$('i-n2').value=S.n2;$('i-dt').value=S.dt;$('i-vn').value=S.vn;
-  $('c-txt').checked=!S.off;$('r-spd').value=S.spd;$('r-den').value=S.dens;$('r-size').value=S.size;$('r-scr').value=S.scroll;
+  $('c-txt').checked=!S.off;$('r-spd').value=S.spd;$('r-den').value=S.dens;$('r-size').value=S.size;$('r-scr').value=S.scroll;$('r-vy').value=S.vy;
 }
 function send(){ctl=true;applyState(S);if(ch)ch.postMessage({s:S})}
 function seg(id,labels,key){
@@ -324,6 +325,7 @@ $('k-pal').oninput=e=>{S.cc=e.target.value;S.pi=4;send();sync()};
 $('c-txt').onchange=e=>{S.off=!e.target.checked;send()};
 $('r-size').oninput=e=>{S.size=+e.target.value;send()};
 $('r-scr').oninput=e=>{S.scroll=+e.target.value;send()};
+$('r-vy').oninput=e=>{S.vy=+e.target.value;send()};
 $('r-spd').oninput=e=>{S.spd=+e.target.value;send()};
 $('r-den').oninput=e=>{S.dens=+e.target.value;send()};
 $('b-fs').onclick=()=>{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()};
