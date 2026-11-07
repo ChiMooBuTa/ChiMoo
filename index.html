@@ -114,6 +114,13 @@ main.tin{animation:var(--in) var(--td) ease both}
   <div class="seg" id="bt-shoot"></div>
   <h3>Speed</h3><input type="range" id="r-spd" min=".2" max="3" step=".1" value="1">
   <h3>Amount</h3><input type="range" id="r-den" min="0" max="1" step=".05" value="1">
+  <div id="fbsec">
+  <h3>Remote control (GitHub hosting)</h3>
+  <input type="text" id="i-fburl" placeholder="Firebase database URL (https://...firebaseio.com)">
+  <input type="text" id="i-fbroom" placeholder="Room code (keep secret, 8+ characters)">
+  <div class="row"><button id="b-fbsave">Save and connect</button><button id="b-fbnew">New code</button></div>
+  <div class="row"><button id="b-fbscreen">Copy screen link</button><button id="b-fbctl">Copy control link</button></div>
+  </div>
   <h3>Logo</h3>
   <div class="row"><button id="b-logo">Choose logo</button><button id="b-nologo">Remove logo</button><input type="file" id="f-logo" accept="image/*" hidden></div>
   <label><input type="checkbox" id="c-logo" checked> Show logo</label>
@@ -477,6 +484,65 @@ function applyRemote(d){
     },e=>setRS('Remote control lost: '+((e&&e.code)||'error')));
   }catch(e){}
 })();
+// ---- remote control through Firebase Realtime Database (for GitHub hosting) ----
+const FB={url:'',room:'',es:null};
+let fbOn=false,fbLastP=null,fbLastL=null;
+const fbOK=u=>/^https:\/\/[a-z0-9-]+(\.[a-z0-9-]+)*\.(firebaseio\.com|firebasedatabase\.app)$/i.test(u);
+const fbBase=()=>FB.url+'/rooms/'+FB.room;
+function fbLoad(){
+  const q=new URLSearchParams(location.search);let u='',r='';
+  try{u=localStorage.getItem('fb-url')||'';r=localStorage.getItem('fb-room')||''}catch(e){}
+  FB.url=(q.get('db')||u).replace(/\/+$/,'');FB.room=(q.get('room')||r).replace(/[^A-Za-z0-9_-]/g,'');
+  if(fbOK(FB.url)&&FB.room.length>=8){try{localStorage.setItem('fb-url',FB.url);localStorage.setItem('fb-room',FB.room)}catch(e){}}
+}
+function fbPut(path,val){return fetch(fbBase()+'/'+path+'.json',{method:'PUT',body:JSON.stringify(val)}).then(r=>{if(!r.ok)throw{code:r.status}})}
+async function fbSet(o){
+  await fbPut('state',{s:o.s,w:o.w,t:o.t});
+  if(photo===null&&fbLastP!==null){fbLastP=null;await fbPut('photo',null)}
+  if(logoData===null&&fbLastL!==null){fbLastL=null;await fbPut('logo',null)}
+}
+function fbApplyState(s){if(!s)return;Object.assign(S,s);applyState(S);sync()}
+function fbApplyPhoto(v){const p=v||null;if(p!==photo){photo=p;fbLastP=p;setPhoto(p)}}
+function fbApplyLogo(v){const l=v||null;if(l!==logoData){fbLastL=l;setLogo(l)}}
+function fbEvent(m){
+  const p=m.path,d=m.data;
+  if(p==='/'){const r=d||{};if(r.state&&r.state.w!==MYID)fbApplyState(r.state.s);fbApplyPhoto(r.photo);fbApplyLogo(r.logo)}
+  else if(p==='/state'){if(d&&d.w!==MYID)fbApplyState(d.s)}
+  else if(p==='/photo')fbApplyPhoto(d);
+  else if(p==='/logo')fbApplyLogo(d);
+}
+function fbListen(){
+  if(FB.es)FB.es.close();
+  const es=new EventSource(fbBase()+'.json');FB.es=es;
+  es.addEventListener('put',e=>{try{fbEvent(JSON.parse(e.data))}catch(x){}});
+  es.addEventListener('patch',e=>{try{fbEvent(JSON.parse(e.data))}catch(x){}});
+  es.onopen=()=>setRS('Remote control: connected (room '+FB.room+')');
+  es.onerror=()=>setRS('Remote control: reconnecting...');
+}
+function fbStart(){
+  if(!fbOK(FB.url)||FB.room.length<8)return;
+  fbOn=true;dbDoc={set:fbSet};
+  if(ch){ch.close();ch=null}
+  setRS('Remote control: connecting...');
+  fbListen();
+}
+function shrink(f,maxW,type,q){return new Promise((res,rej)=>{const url=URL.createObjectURL(f),im=new Image();im.onload=()=>{const s=Math.min(1,maxW/im.width),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(url);res(c.toDataURL(type,q))};im.onerror=rej;im.src=url})}
+const _lp=localPhoto,_ll=localLogo;
+localPhoto=function(f){if(!fbOn)return _lp(f);shrink(f,3328,'image/jpeg',.82).then(d=>{photo=d;fbLastP=d;setPhoto(d);fbPut('photo',d).catch(e=>setRS('Photo could not be sent: '+(e&&e.code||'error')))}).catch(()=>_lp(f))};
+localLogo=function(f){if(!fbOn)return _ll(f);shrink(f,900,'image/png').then(d=>{S.lsh=true;fbLastL=d;setLogo(d);applyState(S);fbPut('logo',d).then(()=>pushRemote()).catch(e=>setRS('Logo could not be sent: '+(e&&e.code||'error')));sync()}).catch(()=>_ll(f))};
+const copyText=t=>{(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>setRS('Link copied'),()=>prompt('Copy this link',t))};
+const fbLinks=()=>{const b=location.origin+location.pathname+'?db='+encodeURIComponent(FB.url)+'&room='+FB.room;return[b,b+'#control']};
+$('b-fbnew').onclick=()=>{$('i-fbroom').value=Array.from(crypto.getRandomValues(new Uint8Array(12)),b=>'abcdefghjkmnpqrstuvwxyz23456789'[b%31]).join('')};
+$('b-fbsave').onclick=()=>{
+  const u=$('i-fburl').value.trim().replace(/\/+$/,''),r=$('i-fbroom').value.replace(/[^A-Za-z0-9_-]/g,'');
+  if(!fbOK(u)||r.length<8){setRS('Enter your Firebase database URL and a room code of at least 8 characters');return}
+  try{localStorage.setItem('fb-url',u);localStorage.setItem('fb-room',r)}catch(e){}
+  FB.url=u;FB.room=r;ctl=true;fbStart();
+};
+$('b-fbscreen').onclick=()=>{if(fbOK(FB.url)&&FB.room.length>=8)copyText(fbLinks()[0]);else setRS('Save and connect first')};
+$('b-fbctl').onclick=()=>{if(fbOK(FB.url)&&FB.room.length>=8)copyText(fbLinks()[1]);else setRS('Save and connect first')};
+fbLoad();$('i-fburl').value=FB.url;$('i-fbroom').value=FB.room;
+if(window.claude&&window.claude.use)$('fbsec').hidden=true;else fbStart();
 dash.hidden=!ctl;sync();
 </script>
 </body>
