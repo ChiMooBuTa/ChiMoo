@@ -12,15 +12,15 @@ html,body{height:100%;overflow:hidden;background:#2a0f1c}
 body{cursor:default}
 body.idle{cursor:none}
 canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
-main{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--ink);transition:opacity 1.2s ease;padding:0 4vw;transform:translateY(var(--vy,0vh))}
+main{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--ink);transition:opacity 1.2s ease,transform .8s ease;padding:0 4vw;transform:translateY(var(--vy,0vh))}
 main.off{opacity:0}
 main.left{align-items:flex-start;text-align:left;padding-left:6vw}
 main.right{align-items:flex-end;text-align:right;padding-right:6vw}
-.rule{width:calc(18vh*var(--sz,1));height:1px;background:linear-gradient(90deg,transparent,var(--ink),transparent);margin:3vh 0;opacity:.8}
-h1{font-family:"Great Vibes","Snell Roundhand","Apple Chancery",cursive;font-weight:400;font-size:17vh;line-height:1.1;text-shadow:0 0 4vh rgb(var(--glow) / .45),0 0 12vh rgb(var(--glow) / .25);animation:glow 8s ease-in-out infinite}
+.rule{width:calc(18vh*var(--sz,1));transition:width .6s ease;height:1px;background:linear-gradient(90deg,transparent,var(--ink),transparent);margin:3vh 0;opacity:.8}
+h1{font-family:"Great Vibes","Snell Roundhand","Apple Chancery",cursive;font-weight:400;font-size:17vh;line-height:1.1;transition:font-size .6s ease;text-shadow:0 0 4vh rgb(var(--glow) / .45),0 0 12vh rgb(var(--glow) / .25);animation:glow 8s ease-in-out infinite}
 h1 i{font-style:normal;font-size:.6em;margin:0 .35em;opacity:.85}
-#dt{font-family:"Cormorant Garamond",Georgia,"Times New Roman",serif;font-weight:300;font-size:calc(3.6vh*var(--sz,1));letter-spacing:.55em;padding-left:.55em}
-#vn{font-family:"Cormorant Garamond",Georgia,serif;font-weight:500;font-size:calc(2.4vh*var(--sz,1));letter-spacing:.3em;margin-top:1.6vh;opacity:.75}
+#dt{font-family:"Cormorant Garamond",Georgia,"Times New Roman",serif;font-weight:300;font-size:calc(3.6vh*var(--sz,1));transition:font-size .6s ease;letter-spacing:.55em;padding-left:.55em}
+#vn{font-family:"Cormorant Garamond",Georgia,serif;font-weight:500;font-size:calc(2.4vh*var(--sz,1));transition:font-size .6s ease;letter-spacing:.3em;margin-top:1.6vh;opacity:.75}
 @keyframes glow{50%{text-shadow:0 0 6vh rgb(var(--glow) / .7),0 0 16vh rgb(var(--glow) / .35)}}
 main.shimmer h1{background:linear-gradient(100deg,var(--ink) 35%,#fff 50%,var(--ink) 65%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 0 2vh rgb(var(--glow) / .5));animation:sh 4s linear infinite}
 @keyframes sh{from{background-position:150% 0}to{background-position:-50% 0}}
@@ -29,6 +29,16 @@ main.float h1{animation:fl 6s ease-in-out infinite,glow 8s ease-in-out infinite}
 main.pulse>*{animation:pu 7s ease-in-out infinite}
 @keyframes pu{0%,100%{opacity:.2}50%{opacity:1}}
 main.plain h1{animation:none}
+@keyframes o-fade{to{opacity:0}}
+@keyframes i-fade{from{opacity:0}}
+@keyframes o-slide{to{opacity:0;translate:0 -3vh}}
+@keyframes i-slide{from{opacity:0;translate:0 3vh}}
+@keyframes o-zoom{to{opacity:0;scale:1.18}}
+@keyframes i-zoom{from{opacity:0;scale:.82}}
+@keyframes o-blur{to{opacity:0;filter:blur(2.4vh)}}
+@keyframes i-blur{from{opacity:0;filter:blur(2.4vh)}}
+main.tout{animation:var(--on) var(--td) ease forwards}
+main.tin{animation:var(--in) var(--td) ease both}
 #hint{position:fixed;left:50%;bottom:3vh;transform:translateX(-50%);font:14px/1.4 system-ui,sans-serif;color:var(--ink);background:rgba(0,0,0,.45);padding:8px 16px;border-radius:18px;text-align:center;transition:opacity 1.5s;white-space:nowrap}
 #hint.gone{opacity:0}
 #dash{position:fixed;top:0;right:0;bottom:0;width:min(340px,100vw);overflow:auto;padding:18px 18px 28px;background:rgba(14,9,15,.86);backdrop-filter:blur(14px);color:#f3e9dc;font:13px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;z-index:5;border-left:1px solid rgba(255,255,255,.12)}
@@ -45,6 +55,9 @@ main.plain h1{animation:none}
 #dash input[type=color]{width:34px;height:34px;padding:0;border:0;background:none;cursor:pointer}
 #dash small{opacity:.55;display:block;margin-top:14px}
 #pre .row{flex-wrap:nowrap}
+#dash label.l{display:block;margin:8px 0 2px;opacity:.7}
+#logo{position:fixed;left:90%;top:14%;height:18vh;max-width:90vw;transform:translate(-50%,-50%);object-fit:contain;pointer-events:none;z-index:2;transition:left .8s ease,top .8s ease,height .8s ease,opacity .6s ease}
+#logo[hidden]{display:none}
 #pre .row button:first-child{flex:1;text-align:left}
 </style>
 </head>
@@ -60,12 +73,17 @@ main.plain h1{animation:none}
 <input type="color" id="kc" value="#d4a54a" style="position:fixed;opacity:0;pointer-events:none;width:0;height:0">
 <input type="color" id="tc" value="#f7e6c4" style="position:fixed;opacity:0;pointer-events:none;width:0;height:0">
 <div id="hint">F fullscreen · C colours · K custom colour · S shape · B photo · X remove photo<br>N name colour · M custom name colour · G name effect · T text on/off · E edit text · 1–5 presets</div>
+<img id="logo" alt="" hidden>
 <aside id="dash" hidden>
   <h2>LED Control</h2>
+  <small id="rs" style="margin:0 0 8px">Remote control: local only (same computer)</small>
   <div class="row"><button id="b-open">Open output screen</button><button id="b-fs">Fullscreen</button></div>
+  <h3>Change transition</h3>
+  <div class="seg" id="bt-tr"></div>
+  <label class="l">Duration</label><input type="range" id="r-td" min=".3" max="3" step=".1" value="1.2">
   <h3>Presets (keys 1 to 5)</h3>
   <div id="pre"></div>
-  <h3>Text</h3>
+  <h3>Text (press Enter to apply)</h3>
   <input type="text" id="i-n1" placeholder="Name 1"><input type="text" id="i-n2" placeholder="Name 2"><input type="text" id="i-dt" placeholder="Date"><input type="text" id="i-vn" placeholder="Bottom line">
   <label><input type="checkbox" id="c-txt" checked> Show text</label>
   <h3>Name colour</h3>
@@ -96,6 +114,14 @@ main.plain h1{animation:none}
   <div class="seg" id="bt-shoot"></div>
   <h3>Speed</h3><input type="range" id="r-spd" min=".2" max="3" step=".1" value="1">
   <h3>Amount</h3><input type="range" id="r-den" min="0" max="1" step=".05" value="1">
+  <h3>Logo</h3>
+  <div class="row"><button id="b-logo">Choose logo</button><button id="b-nologo">Remove logo</button><input type="file" id="f-logo" accept="image/*" hidden></div>
+  <label><input type="checkbox" id="c-logo" checked> Show logo</label>
+  <div class="seg" id="bt-lpos" style="margin-top:6px"></div>
+  <label class="l">Size</label><input type="range" id="r-ls" min="4" max="90" step="1" value="18">
+  <label class="l">Left to right</label><input type="range" id="r-lx" min="0" max="100" step="1" value="90">
+  <label class="l">Up to down</label><input type="range" id="r-ly" min="0" max="100" step="1" value="14">
+  <label class="l">Opacity</label><input type="range" id="r-lo" min=".1" max="1" step=".05" value="1">
   <small>Open this page with #control at the end of the link on your laptop. Open the plain link on the screen computer (same browser). Press D to show or hide this panel.</small>
 </aside>
 <script>
@@ -120,16 +146,16 @@ const pet=Array.from({length:30},()=>({x:R(0,1),y:R(0,1.2),sz:R(11,26),s:R(.02,.
 const spk=Array.from({length:80},()=>({x:R(0,1),y:R(0,1),sz:R(4,14),ph:R(0,6.3),sp:R(.6,2)}));
 
 function frame(ms){
-  const dt=Math.min(.1,(ms-last)/1000);last=ms;T+=dt*spd;const t=T,u=H/1080;mix();
+  const dt=Math.min(.1,(ms-last)/1000);last=ms;T+=dt*spd;const t=T,u=H/1080;mix();stepDips(dt);
   ctx.globalCompositeOperation='source-over';
   let g=ctx.createLinearGradient(0,0,W,H);
   g.addColorStop(0,rgb(cur.a));g.addColorStop(1,rgb(cur.b));
   ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
 
   if(bgImg){
-    const iw=bgImg.width,ih=bgImg.height,s=(fit===1?Math.min(W/iw,H/ih):Math.max(W/iw,H/ih))*(fit===0?1.06+.04*Math.sin(t*.05):1);
+    ctx.globalAlpha=dips.ba.v;const iw=bgImg.width,ih=bgImg.height,s=(fit===1?Math.min(W/iw,H/ih):Math.max(W/iw,H/ih))*(fit===0?1.06+.04*Math.sin(t*.05):1);
     if(fit>=3){const ts=H/ih,tw=iw*ts,o=(t*scr*H*.1)%(fit===4?tw*2:tw);for(let k=0,x=-o;x<W;k++,x+=tw){if(fit===4&&k%2){ctx.save();ctx.translate(x+tw,0);ctx.scale(-1,1);ctx.drawImage(bgImg,0,0,tw+1,H);ctx.restore();}else ctx.drawImage(bgImg,x,0,tw+1,H);}}else if(fit===2)ctx.drawImage(bgImg,0,0,W,H);else ctx.drawImage(bgImg,(W-iw*s)/2,(H-ih*s)/2,iw*s,ih*s);
-    ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(0,0,W,H);ctx.globalAlpha=1;
   }
   ctx.globalCompositeOperation='lighter';
   const lx=W*(.5+.3*Math.sin(t*.1)),ly=H*(.45+.2*Math.cos(t*.13));
@@ -177,7 +203,7 @@ function frame(ms){
     ctx.translate(((x%1+1)%1)*W,y*H);
     ctx.rotate(p.rot+t*p.rs*.8);
     ctx.scale(1,.55+.45*Math.cos(t*1.2+p.ph));
-    ctx.globalAlpha=mat?.92:1;ctx.fillStyle=mat?metal(sz,t,p):rgb(cur.p,.5);
+    ctx.globalAlpha=(mat?.92:1)*dips.sa.v;ctx.fillStyle=mat?metal(sz,t,p):rgb(cur.p,.5);
     drawShape(sz);
     ctx.restore();
   }
@@ -188,6 +214,10 @@ requestAnimationFrame(frame);
 const $=id=>document.getElementById(id);
 let shp=0,ink=0,fx=0;
 const stars=[];
+const dips={sa:{v:1,d:0,h:.6,fn:null},ba:{v:1,d:0,h:.6,fn:null}};
+let lastSS='0|0|0',lastFit=0;
+function stepDips(dt){for(const k in dips){const o=dips[k];if(!o.d)continue;o.v+=o.d*dt/o.h;if(o.d<0&&o.v<=0){o.v=0;o.d=1;if(o.fn){const f=o.fn;o.fn=null;f()}}else if(o.d>0&&o.v>=1){o.v=1;o.d=0}}}
+function dip(k,fn,tr,td){if(!tr){fn();return}const o=dips[k];o.h=Math.max(.15,(td||1.2)/2);if(o.fn)o.fn();o.fn=fn;o.d=-1}
 function mkStar(){const u=H/1080,a=R(.35,.75),f=Math.random()<.5?-1:1;return{x:W*(f<0?R(.3,1.05):R(-.05,.7)),y:H*R(-.05,.5),dx:f*Math.cos(a),dy:Math.sin(a),sp:R(1200,2000)*u,len:R(260,520)*u,t:0,life:R(.9,1.5)}}
 function el(cx,cy,rx,ry,rot){ctx.moveTo(cx+rx*Math.cos(rot),cy+rx*Math.sin(rot));ctx.ellipse(cx,cy,rx,ry,rot,0,6.283)}
 function bar(cx,cy,a,L,w){const c=Math.cos(a),s=Math.sin(a);[[-L,-w],[L,-w],[L,w],[-L,w]].forEach(([x,y],i)=>ctx[i?'lineTo':'moveTo'](cx+x*c-y*s,cy+x*s+y*c));ctx.closePath()}
@@ -256,7 +286,7 @@ addEventListener('mousemove',wake);wake();
 setTimeout(()=>$('hint').classList.add('gone'),8000);
 
 // ---- control dashboard ----
-const ch=('BroadcastChannel' in window)?new BroadcastChannel('wedding-led'):null;
+let ch=('BroadcastChannel' in window)?new BroadcastChannel('wedding-led'):null;
 const FONTS=[
   ['Great Vibes',`'Great Vibes','Snell Roundhand','Apple Chancery',cursive`,17],
   ['Allura',`'Allura','Snell Roundhand',cursive`,17],
@@ -264,18 +294,44 @@ const FONTS=[
   ['Playfair',`'Playfair Display',Georgia,'Times New Roman',serif`,12],
   ['Cinzel',`'Cinzel','Trajan Pro',Georgia,serif`,10]
 ];
-const S={pi:0,cc:null,shp:0,ink:'#f7e6c4',fx:0,font:0,size:1,pos:0,fit:0,scroll:0,mat:0,grow:0,shoot:0,vy:0,off:false,n1:$('n1').textContent,n2:$('n2').textContent,dt:$('dt').textContent,vn:$('vn').textContent,spd:1,dens:1};
-let photo=null,ctl=location.hash==='#control';
+const S={pi:0,cc:null,shp:0,ink:'#f7e6c4',fx:0,font:0,size:1,pos:0,fit:0,scroll:0,mat:0,grow:0,shoot:0,vy:0,lx:90,ly:14,ls:18,lo:1,lsh:true,tr:1,td:1.2,off:false,n1:$('n1').textContent,n2:$('n2').textContent,dt:$('dt').textContent,vn:$('vn').textContent,spd:1,dens:1};
+let photo=null,logoData=null,ctl=location.hash==='#control';
 const mkP=h=>{const c=[1,3,5].map(i=>parseInt(h.substr(i,2),16)),dk=f=>c.map(v=>v*f),lt=f=>c.map(v=>v+(255-v)*f);return{a:dk(.16),b:dk(.5),g:lt(.55),p:lt(.7)}};
-function setPhoto(d){if(!d){bgImg=null;return}const im=new Image();im.onload=()=>{bgImg=im};im.src=d}
+let tsig=null,ttimer=0;
+const TRN=['','fade','slide','zoom','blur'];
+function setText(c){
+  const f=FONTS[c.font|0],m=$('t');
+  m.querySelector('h1').style.fontFamily=f[1];
+  $('n1').textContent=c.n1;$('n2').textContent=c.n2;$('dt').textContent=c.dt;$('vn').textContent=c.vn;
+  m.classList.remove('left','right');if(c.pos===1)m.classList.add('left');if(c.pos===2)m.classList.add('right');
+}
+function textSwap(s){
+  const sig=JSON.stringify([s.n1,s.n2,s.dt,s.vn,s.font,s.pos]);
+  if(sig===tsig)return;
+  const c=Object.assign({},s),m=$('t'),first=tsig===null;
+  tsig=sig;clearTimeout(ttimer);m.classList.remove('tout','tin');
+  if(first||!s.tr){setText(c);return}
+  const half=(s.td||1.2)/2,nm=TRN[s.tr];
+  m.style.setProperty('--td',half+'s');m.style.setProperty('--on','o-'+nm);m.style.setProperty('--in','i-'+nm);
+  m.classList.add('tout');
+  ttimer=setTimeout(()=>{setText(c);m.classList.remove('tout');void m.offsetWidth;m.classList.add('tin');ttimer=setTimeout(()=>m.classList.remove('tin'),half*1000)},half*1000);
+}
+function setPhoto(d){
+  if(!d){dip('ba',()=>{bgImg=null},S.tr,S.td);return}
+  const im=new Image();im.onload=()=>{dip('ba',()=>{bgImg=im},S.tr,S.td)};im.src=d;
+}
 function applyState(s){
   if(s.cc)P[4]=mkP(s.cc);
-  pi=s.pi;shp=s.shp;spd=s.spd;dens=s.dens;fit=s.fit|0;scr=s.scroll||0;mat=s.mat|0;grow=s.grow|0;shoot=s.shoot|0;setInk(s.ink);
+  pi=s.pi;spd=s.spd;dens=s.dens;scr=s.scroll||0;shoot=s.shoot|0;setInk(s.ink);
+  const nfit=s.fit|0,ss=s.shp+'|'+(s.mat|0)+'|'+(s.grow|0);
+  if(ss!==lastSS){lastSS=ss;const a=s.shp,b=s.mat|0,c=s.grow|0;dip('sa',()=>{shp=a;mat=b;grow=c},s.tr,s.td)}
+  if(nfit!==lastFit){lastFit=nfit;if(bgImg)dip('ba',()=>{fit=nfit},s.tr,s.td);else fit=nfit}
   const m=$('t');m.classList.remove('shimmer','float','pulse','plain');if(FX[s.fx])m.classList.add(FX[s.fx]);
   m.classList.toggle('off',s.off);
-  const f=FONTS[s.font|0],h1=m.querySelector('h1');h1.style.fontFamily=f[1];h1.style.fontSize=f[2]*(s.size||1)+'vh';m.style.setProperty('--sz',s.size||1);m.style.setProperty('--vy',(s.vy||0)+'vh');
-  m.classList.remove('left','right');if(s.pos===1)m.classList.add('left');if(s.pos===2)m.classList.add('right');
-  $('n1').textContent=s.n1;$('n2').textContent=s.n2;$('dt').textContent=s.dt;$('vn').textContent=s.vn;
+  const lg=$('logo');lg.style.left=s.lx+'%';lg.style.top=s.ly+'%';lg.style.height=s.ls+'vh';lg.style.opacity=s.lo;lg.hidden=!(s.lsh&&logoData);
+  const f=FONTS[s.font|0],h1=m.querySelector('h1');h1.style.fontSize=f[2]*(s.size||1)+'vh';m.style.setProperty('--sz',s.size||1);m.style.setProperty('--vy',(s.vy||0)+'vh');
+  
+  textSwap(s);
 }
 const dash=$('dash'),ui=[];
 dash.addEventListener('keydown',e=>e.stopPropagation());
@@ -283,8 +339,9 @@ function sync(){
   ui.forEach(f=>f());
   $('i-n1').value=S.n1;$('i-n2').value=S.n2;$('i-dt').value=S.dt;$('i-vn').value=S.vn;
   $('c-txt').checked=!S.off;$('r-spd').value=S.spd;$('r-den').value=S.dens;$('r-size').value=S.size;$('r-scr').value=S.scroll;$('r-vy').value=S.vy;
+  $('r-td').value=S.td;$('r-ls').value=S.ls;$('r-lx').value=S.lx;$('r-ly').value=S.ly;$('r-lo').value=S.lo;$('c-logo').checked=S.lsh;
 }
-function send(){ctl=true;applyState(S);if(ch)ch.postMessage({s:S})}
+function send(){ctl=true;applyState(S);if(ch)ch.postMessage({s:S});pushRemote()}
 function seg(id,labels,key){
   const el=$(id);
   labels.forEach((l,i)=>{const b=document.createElement('button');b.textContent=l;b.onclick=()=>{S[key]=i;send();sync()};el.appendChild(b)});
@@ -319,27 +376,30 @@ seg('bt-shp',['Petals','Hearts','Stars','Bubbles','Diamonds','Flowers','Butterfl
 seg('bt-mat',['Theme','Gold','Rose gold','Silver','Copper'],'mat');
 seg('bt-grow',['Off','Grow','Pulse'],'grow');
 seg('bt-shoot',['Off','Few','Many'],'shoot');
+seg('bt-tr',['Off','Fade','Slide','Zoom','Blur'],'tr');
 $('k-ink').oninput=e=>{S.ink=e.target.value;send();sync()};
 $('k-pal').oninput=e=>{S.cc=e.target.value;S.pi=4;send();sync()};
-[['i-n1','n1'],['i-n2','n2'],['i-dt','dt'],['i-vn','vn']].forEach(([id,k])=>{$(id).oninput=e=>{S[k]=e.target.value;send()}});
+[['i-n1','n1'],['i-n2','n2'],['i-dt','dt'],['i-vn','vn']].forEach(([id,k])=>{$(id).onchange=e=>{S[k]=e.target.value;send()}});
 $('c-txt').onchange=e=>{S.off=!e.target.checked;send()};
 $('r-size').oninput=e=>{S.size=+e.target.value;send()};
 $('r-scr').oninput=e=>{S.scroll=+e.target.value;send()};
 $('r-vy').oninput=e=>{S.vy=+e.target.value;send()};
+$('r-td').oninput=e=>{S.td=+e.target.value;send()};
 $('r-spd').oninput=e=>{S.spd=+e.target.value;send()};
 $('r-den').oninput=e=>{S.dens=+e.target.value;send()};
 $('b-fs').onclick=()=>{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()};
 $('b-open').onclick=()=>window.open(location.href.split('#')[0],'_blank');
 $('b-ph').onclick=()=>$('f-ph').click();
-$('f-ph').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{photo=r.result;ctl=true;setPhoto(photo);if(ch)ch.postMessage({photo})};r.readAsDataURL(f);e.target.value=''};
-$('b-nophoto').onclick=()=>{photo=null;ctl=true;setPhoto(null);if(ch)ch.postMessage({photo:null})};
+$('f-ph').onchange=e=>{const f=e.target.files[0];if(!f)return;ctl=true;if(assetsNS)assetsNS.upload(f).then(u=>{photo=u.url;setPhoto(photo);pushRemote()}).catch(()=>localPhoto(f));else localPhoto(f);e.target.value=''};
+$('b-nophoto').onclick=()=>{photo=null;ctl=true;setPhoto(null);if(ch)ch.postMessage({photo:null});pushRemote()};
 addEventListener('keydown',e=>{if(e.key.toLowerCase()==='d'){dash.hidden=!dash.hidden;sync()}});
 if(ch){
   ch.onmessage=e=>{
     const d=e.data;
-    if(d.hello&&ctl)ch.postMessage({s:S,photo});
+    if(d.hello&&ctl)ch.postMessage({s:S,photo,logo:logoData});
     if(d.s){Object.assign(S,d.s);applyState(S);sync()}
     if('photo' in d){photo=d.photo;setPhoto(photo)}
+    if('logo' in d)setLogo(d.logo);
   };
   if(!ctl)ch.postMessage({hello:1});
 }
@@ -369,6 +429,54 @@ function renderPre(){
 }
 renderPre();
 addEventListener('keydown',e=>{if(e.key>='1'&&e.key<='5')loadPreset(+e.key-1)});
+function setLogo(d){logoData=d;const l=$('logo');if(d)l.src=d;l.hidden=!(S.lsh&&d)}
+[['r-ls','ls'],['r-lx','lx'],['r-ly','ly'],['r-lo','lo']].forEach(([id,k])=>{$(id).oninput=e=>{S[k]=+e.target.value;send()}});
+[['Top left',10,14],['Top centre',50,14],['Top right',90,14],['Bottom left',10,86],['Bottom centre',50,86],['Bottom right',90,86]].forEach(([n,x,y])=>{const b=document.createElement('button');b.textContent=n;b.onclick=()=>{S.lx=x;S.ly=y;send();sync()};$('bt-lpos').appendChild(b)});
+$('b-logo').onclick=()=>$('f-logo').click();
+$('f-logo').onchange=e=>{const f=e.target.files[0];if(!f)return;ctl=true;if(assetsNS)assetsNS.upload(f).then(u=>{S.lsh=true;setLogo(u.url);applyState(S);pushRemote();sync()}).catch(()=>localLogo(f));else localLogo(f);e.target.value=''};
+$('b-nologo').onclick=()=>{ctl=true;setLogo(null);if(ch)ch.postMessage({logo:null});pushRemote()};
+$('c-logo').onchange=e=>{S.lsh=e.target.checked;send()};
+// ---- remote control from another computer (shared live state) ----
+let assetsNS=null,dbDoc=null,wr=false,dirty=false,pt=0;
+const MYID=Math.random().toString(36).slice(2);
+function setRS(t){$('rs').textContent=t}
+function localPhoto(f){const r=new FileReader();r.onload=()=>{photo=r.result;setPhoto(photo);if(ch)ch.postMessage({photo})};r.readAsDataURL(f)}
+function localLogo(f){const r=new FileReader();r.onload=()=>{S.lsh=true;setLogo(r.result);applyState(S);if(ch)ch.postMessage({s:S,logo:r.result});sync()};r.readAsDataURL(f)}
+const pu=v=>v&&!String(v).startsWith('data:')?v:null;
+function pushRemote(){if(!dbDoc)return;clearTimeout(pt);pt=setTimeout(flush,140)}
+async function flush(){
+  if(wr){dirty=true;return}
+  wr=true;
+  try{await dbDoc.set({s:JSON.parse(JSON.stringify(S)),photo:pu(photo),logo:pu(logoData),w:MYID,t:Date.now()});setRS('Remote control: connected')}
+  catch(e){setRS('Could not send to the screen (need edit access): '+((e&&e.code)||'error'))}
+  wr=false;
+  if(dirty){dirty=false;flush()}
+}
+function applyRemote(d){
+  if(d.s)Object.assign(S,d.s);
+  const p=d.photo||null;if(p!==photo){photo=p;setPhoto(p)}
+  const l=d.logo||null;if(l!==logoData)setLogo(l);
+  applyState(S);sync();
+}
+(async()=>{
+  try{
+    if(!(window.claude&&window.claude.use))return;
+    const db=await window.claude.use('db');
+    if(!db)return;
+    try{assetsNS=await window.claude.use('assets')}catch(e){}
+    let ed=null;
+    try{const u=await window.claude.use('user');if(u)ed=await u.canEdit()}catch(e){}
+    dbDoc=db.doc('live/state');
+    if(ch){ch.close();ch=null}
+    setRS(ed===false?'Remote control: view only. Open this page with an account that has edit access to control the screen.':'Remote control: connected');
+    dbDoc.onSnapshot(snap=>{
+      if(!snap.exists)return;
+      const d=snap.data();
+      if(!d||d.w===MYID)return;
+      applyRemote(d);
+    },e=>setRS('Remote control lost: '+((e&&e.code)||'error')));
+  }catch(e){}
+})();
 dash.hidden=!ctl;sync();
 </script>
 </body>
