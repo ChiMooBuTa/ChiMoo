@@ -84,7 +84,7 @@ main.tin{animation:var(--in) var(--td) ease both}
   <h3>Presets (keys 1 to 5)</h3>
   <div id="pre"></div>
   <h3>Text (press Enter to apply)</h3>
-  <input type="text" id="i-n1" placeholder="Name 1"><input type="text" id="i-n2" placeholder="Name 2"><input type="text" id="i-dt" placeholder="Date"><input type="text" id="i-vn" placeholder="Bottom line">
+  <input type="text" id="i-n1" placeholder="Chisa"><input type="text" id="i-n2" placeholder="Wasin"><input type="text" id="i-dt" placeholder="28 · NoV · 2026"><input type="text" id="i-vn" placeholder="#LEXMOOFOREVER">
   <label><input type="checkbox" id="c-txt" checked> Show text</label>
   <h3>Name colour</h3>
   <div class="sw" id="sw-ink"></div>
@@ -411,11 +411,12 @@ if(ch){
   if(!ctl)ch.postMessage({hello:1});
 }
 const BUILT=[
-  {name:'Ceremony',pi:0,shp:0,mat:0,grow:0,shoot:0,fx:0,spd:.6,dens:.5,font:0},
-  {name:'Reception',pi:1,shp:1,mat:2,grow:1,shoot:1,fx:1,spd:1,dens:.8,font:1},
-  {name:'Toast',pi:3,shp:12,mat:1,grow:1,shoot:2,fx:1,spd:1,dens:.6,font:3},
-  {name:'Dance floor',pi:3,shp:9,mat:3,grow:2,shoot:2,fx:3,spd:2,dens:1,font:4},
-  {name:'Quiet',pi:0,shp:0,mat:0,grow:0,shoot:0,fx:4,spd:.5,dens:0,font:0}
+  {name:'Burgandy',pi:0,shp:0,mat:0,grow:0,shoot:0,fx:0,spd:.6,dens:.5,font:0},
+  {name:'Pink',pi:1,shp:1,mat:2,grow:1,shoot:1,fx:1,spd:1,dens:.8,font:1},
+  {name:'Blue',pi:3,shp:12,mat:1,grow:1,shoot:2,fx:1,spd:1,dens:.6,font:2},
+  {name:'Gold',pi:4,shp:9,mat:3,grow:2,shoot:2,fx:3,spd:2,dens:1,font:1},
+  {name:'Orange',pi:9,shp:11,mat:0,grow:0,shoot:0,fx:4,spd:.5,dens:0,font:0},
+  {name:'Red',pi:11,shp:12,mat:0,grow:0,shoot:0,fx:4,spd:.5,dens:0,font:0}
 ];
 let presets=null;
 try{presets=JSON.parse(localStorage.getItem('wedding-presets'))}catch(e){}
